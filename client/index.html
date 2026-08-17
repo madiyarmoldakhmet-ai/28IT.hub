@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>28IT.hub | Платформа школьных IT и Maker проектов</title>
+  <meta name="description" content="Платформа школьных проектов 28IT.hub — 3D-печать, FPV дроны, микроконтроллеры и ПО." />
+  <link rel="stylesheet" href="style.css?v=4" />
+</head>
+<body class="mw-theme">
+
+  <!-- AUTH SCREEN -->
+  <div id="authScreen" class="auth-screen">
+    <div class="mw-auth-card">
+      <div class="mw-auth-header">
+        <div class="mw-logo">28IT<span>.hub</span></div>
+        <p class="mw-auth-sub">Платформа инженеров и мейкеров</p>
+      </div>
+      <div class="mw-auth-body">
+        <div class="auth-tabs">
+          <button id="loginTabBtn" class="tab-btn active" onclick="switchAuthTab('login')">Вход</button>
+          <button id="registerTabBtn" class="tab-btn" onclick="switchAuthTab('register')">Регистрация</button>
+        </div>
+        <form id="authForm" onsubmit="handleAuthSubmit(event)">
+          <div class="form-row">
+            <label for="usernameInput">Имя пользователя:</label>
+            <input type="text" id="usernameInput" class="mw-input" required minlength="3" autocomplete="username" placeholder="например: alex_maker" />
+          </div>
+          <div class="form-row">
+            <label for="passwordInput">Пароль:</label>
+            <input type="password" id="passwordInput" class="mw-input" required minlength="6" autocomplete="current-password" placeholder="••••••••" />
+          </div>
+          <div id="authError" class="auth-error hidden"></div>
+          <div class="form-buttons">
+            <button type="submit" id="authSubmitBtn" class="mw-btn mw-btn-primary full-width">Войти</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN MAKERWORLD LAYOUT -->
+  <div id="appContainer" class="mw-app-layout hidden">
+    
+    <!-- LEFT SIDEBAR NAVIGATION -->
+    <aside class="mw-sidebar">
+      <div class="mw-sidebar-brand">
+        <div class="mw-logo">28IT<span>.hub</span></div>
+        <div class="mw-tagline">MakerWorld</div>
+      </div>
+
+      <nav class="mw-sidebar-nav">
+        <button id="navMain" class="mw-nav-item active" onclick="navigate('main')">
+          <span class="mw-nav-icon">🏠</span>
+          <span class="mw-nav-text">Главная</span>
+        </button>
+        <button id="navProjects" class="mw-nav-item" onclick="navigate('projects')">
+          <span class="mw-nav-icon">📦</span>
+          <span class="mw-nav-text">Все проекты</span>
+        </button>
+        <button id="navMyProjects" class="mw-nav-item" onclick="navigate('my-projects')">
+          <span class="mw-nav-icon">🛠</span>
+          <span class="mw-nav-text">Мои проекты</span>
+        </button>
+        <button id="navChats" class="mw-nav-item" onclick="navigate('chats')">
+          <span class="mw-nav-icon">💬</span>
+          <span class="mw-nav-text">Сообщения</span>
+          <span id="unreadBadge" class="mw-badge hidden">0</span>
+        </button>
+        <button id="navProfile" class="mw-nav-item" onclick="navigate('profile')">
+          <span class="mw-nav-icon">👤</span>
+          <span class="mw-nav-text">Профиль</span>
+        </button>
+      </nav>
+
+      <div class="mw-sidebar-footer">
+        <div class="mw-user-card">
+          <div class="mw-avatar-circle" id="currentUserAvatar">U</div>
+          <div class="mw-user-meta">
+            <span class="mw-user-name" id="currentUsername">Пользователь</span>
+            <span class="mw-user-status">● В сети</span>
+          </div>
+        </div>
+        <button class="mw-btn-logout" onclick="logout()" title="Выйти">🚪</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="mw-main-area">
+
+      <!-- TOP BAR -->
+      <header class="mw-topbar">
+        <div class="mw-search-bar">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="globalSearchInput" placeholder="Поиск проектов, моделей, авторов..." oninput="handleGlobalSearch()" />
+        </div>
+        <div class="mw-topbar-actions">
+          <button class="mw-btn mw-btn-primary" onclick="openPublishModal()">
+            <span>+</span> Опубликовать проект
+          </button>
+        </div>
+      </header>
+
+      <!-- PAGE VIEW: PROJECTS / CATALOG / MAIN / MY PROJECTS / PROFILE -->
+      <div id="pageView" class="mw-page-view">
+        
+        <!-- CATEGORIES HORIZONTAL SCROLL BAR -->
+        <div class="mw-categories-wrap">
+          <div class="mw-categories-list" id="categoriesList">
+            <button class="cat-pill active" onclick="selectCategory('Все')">✨ Все</button>
+            <button class="cat-pill" onclick="selectCategory('3D-Печать')">🖨 3D-Печать</button>
+            <button class="cat-pill" onclick="selectCategory('FPV & Дроны')">🛸 FPV & Дроны</button>
+            <button class="cat-pill" onclick="selectCategory('Микроконтроллеры')">⚡ Микроконтроллеры</button>
+            <button class="cat-pill" onclick="selectCategory('ПО')">💻 ПО & Софт</button>
+          </div>
+        </div>
+
+        <!-- MAIN LAYOUT GRID (LEFT: PROJECTS GRID, RIGHT: GIT ACTIVITY WIDGET) -->
+        <div class="mw-content-grid">
+          
+          <div class="mw-projects-section">
+            <div class="mw-section-header">
+              <h2 id="sectionTitle">Каталог проектов</h2>
+              <span id="projectsCount" class="mw-section-count">0 проектов</span>
+            </div>
+            
+            <!-- PROJECTS CARDS GRID -->
+            <div id="projectsGrid" class="mw-grid">
+              <div class="mw-loading-skeleton">Загрузка проектов...</div>
+            </div>
+          </div>
+
+          <!-- RIGHT SIDEBAR: GIT ACTIVITY -->
+          <aside class="mw-activity-widget">
+            <div class="mw-widget-card">
+              <div class="mw-widget-header">
+                <span>⚡ Git-Активность</span>
+                <span class="mw-pulse-dot"></span>
+              </div>
+              <div id="gitActivityList" class="git-activity-list">
+                <div class="git-empty">Ожидание событий с Gitea...</div>
+              </div>
+            </div>
+          </aside>
+
+        </div><!-- /mw-content-grid -->
+
+      </div><!-- /pageView -->
+
+      <!-- CHATS VIEW (OLX-STYLE DIRECT MESSAGES PANEL) -->
+      <div id="chatsView" class="mw-chats-view hidden">
+        <div class="mw-chats-container">
+          <!-- Left: Dialogs List -->
+          <div class="mw-chats-sidebar">
+            <div class="mw-chats-header">
+              <h3>Мои диалоги</h3>
+            </div>
+            <div id="chatsList" class="mw-dialogs-list"></div>
+          </div>
+          <!-- Right: Active Chat Messages Window -->
+          <div class="mw-chat-main">
+            <div id="chatHeader" class="mw-chat-window-header">
+              <div class="chat-title-wrap">
+                <span id="activeChatAvatar" class="mw-chat-avatar">👤</span>
+                <div>
+                  <div id="activeChatTitle" class="mw-chat-title">Выберите диалог</div>
+                  <div id="chatSubInfo" class="mw-chat-subinfo"></div>
+                </div>
+              </div>
+              <span id="typingIndicator" class="typing-indicator hidden">набирает сообщение...</span>
+            </div>
+            <div id="messagesContainer" class="mw-messages-container">
+              <div class="empty-messages-placeholder">Выберите диалог из списка слева</div>
+            </div>
+            <form id="messageForm" class="mw-message-form hidden" onsubmit="sendMessage(event)">
+              <div class="mw-input-row">
+                <button type="button" class="mw-icon-btn" onclick="document.getElementById('chatFileInput').click()" title="Прикрепить фото">📷</button>
+                <input type="file" id="chatFileInput" accept="image/*" style="display:none" onchange="handleChatFileSelect(event)" />
+                <textarea id="messageInput" class="mw-textarea" placeholder="Напишите сообщение..." rows="1" oninput="handleTyping()" onkeydown="handleKeyDown(event)"></textarea>
+                <button type="submit" class="mw-btn mw-btn-primary">Отправить</button>
+              </div>
+              <div id="chatAttachPreview" class="chat-attach-preview hidden">
+                <img id="chatAttachImg" src="" alt="preview" />
+                <button type="button" class="attach-remove-btn" onclick="removeChatAttach()">✕ Убрать</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div><!-- /chatsView -->
+
+    </main>
+  </div>
+
+  <!-- PROJECT DETAIL MODAL (MAKERWORLD + OLX STYLE) -->
+  <div id="projectDetailModal" class="mw-modal-overlay hidden">
+    <div class="mw-modal-content project-detail-modal">
+      <button class="mw-modal-close" onclick="closeProjectDetailModal()">&times;</button>
+      <div id="projectDetailBody" class="mw-modal-body">
+        <!-- Rendered dynamically by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- PUBLISH PROJECT MODAL -->
+  <div id="publishModal" class="mw-modal-overlay hidden">
+    <div class="mw-modal-content publish-modal">
+      <div class="mw-modal-header">
+        <h3>🚀 Опубликовать проект</h3>
+        <button class="mw-modal-close" onclick="closePublishModal()">&times;</button>
+      </div>
+      <div class="mw-modal-body">
+        <form id="publishForm" onsubmit="handlePublishSubmit(event)">
+          <div class="form-row">
+            <label for="postTitle">Название проекта *</label>
+            <input type="text" id="postTitle" class="mw-input" placeholder="например: FPV Квадрокоптер 5 дюймов" required />
+          </div>
+          <div class="form-row">
+            <label for="postCategory">Категория</label>
+            <select id="postCategory" class="mw-select">
+              <option value="3D-Печать">🖨 3D-Печать</option>
+              <option value="FPV & Дроны">🛸 FPV & Дроны</option>
+              <option value="Микроконтроллеры">⚡ Микроконтроллеры</option>
+              <option value="ПО">💻 ПО & Софт</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="postDesc">Описание проекта *</label>
+            <textarea id="postDesc" class="mw-textarea" rows="4" placeholder="Расскажите о проекте, весах, материалах, коде..." required></textarea>
+          </div>
+          <div class="form-row">
+            <label for="postRepo">Ссылка на Git-репозиторий (Gitea / GitHub)</label>
+            <input type="text" id="postRepo" class="mw-input" placeholder="http://raspberrypi.local:3000/user/repo" />
+          </div>
+          <div class="form-row">
+            <label for="postImageInput">Обложка / Скриншот проекта</label>
+            <input type="file" id="postImageInput" accept="image/*" class="mw-input-file" />
+          </div>
+          <div id="publishError" class="auth-error hidden"></div>
+          <div class="mw-modal-actions">
+            <button type="button" class="mw-btn mw-btn-secondary" onclick="closePublishModal()">Отмена</button>
+            <button type="submit" id="publishBtn" class="mw-btn mw-btn-primary">Опубликовать</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>
