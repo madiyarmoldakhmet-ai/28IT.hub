@@ -276,7 +276,7 @@ function buildProjectCard(post) {
     ? `<img src="${escapeHtml(post.image_url)}" alt="${escapeHtml(post.title)}" />`
     : `<div class="mw-card-fallback">⚙️</div>`;
 
-  const category = post.category || '3D-Печать';
+  const category = post.category || 'Учёба & Доклады';
 
   card.innerHTML = `
     <div class="mw-card-cover">
@@ -364,7 +364,7 @@ function renderProjectDetailBody(post) {
     <div class="pd-title-row">
       <div>
         <h1 class="pd-title">${escapeHtml(post.title)}</h1>
-        <span class="pd-category-pill">${escapeHtml(post.category || '3D-Печать')}</span>
+        <span class="pd-category-pill">${escapeHtml(post.category || 'Учёба & Доклады')}</span>
       </div>
       <div>
         ${contactBtnHtml}

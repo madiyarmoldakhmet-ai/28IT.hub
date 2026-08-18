@@ -101,7 +101,7 @@ async function initDatabase() {
       user_id INTEGER NOT NULL,
       title TEXT NOT NULL,
       description TEXT NOT NULL,
-      category TEXT NOT NULL DEFAULT '3D-Печать',
+      category TEXT NOT NULL DEFAULT 'Учёба & Доклады',
       repo_url TEXT,
       image_url TEXT,
       views INTEGER NOT NULL DEFAULT 0,
@@ -152,7 +152,7 @@ async function initDatabase() {
     }
     const hasCategory = postsInfo.some((col) => col.name === 'category');
     if (!hasCategory) {
-      await run("ALTER TABLE posts ADD COLUMN category TEXT NOT NULL DEFAULT '3D-Печать'");
+      await run("ALTER TABLE posts ADD COLUMN category TEXT NOT NULL DEFAULT 'Учёба & Доклады'");
     }
     const hasViews = postsInfo.some((col) => col.name === 'views');
     if (!hasViews) {
